@@ -1,3 +1,4 @@
+// ==== IMPORTS ====
 import express from "express";
 import dotenv from "dotenv";
 import { Client, GatewayIntentBits } from "discord.js";
@@ -7,19 +8,23 @@ dotenv.config();
 
 // ==== EXPRESS KEEPALIVE FOR RENDER ====
 const app = express();
-app.get("/", (req, res) => res.send("Claude Discord Bot is running."));
+app.get("/", (req, res) => res.send("Claude Discord Bot is running!"));
 app.listen(process.env.PORT || 3000, () => {
   console.log("Web service active on port", process.env.PORT || 3000);
 });
 
 // ==== DISCORD CLIENT ====
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
+  intents: [
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
+  ]
 });
 
 client.once("ready", () => console.log(`Bot logged in as ${client.user.tag}`));
 
-// ====== CLAUDE API ======
+// ==== CLAUDE API ====
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -28,7 +33,7 @@ const anthropic = new Anthropic({
 client.on("messageCreate", async (msg) => {
   if (msg.author.bot) return;
 
-  // bot triggers
+  // Bot triggers only when message starts with !ask
   if (!msg.content.startsWith("!ask")) return;
 
   const prompt = msg.content.replace("!ask", "").trim();
