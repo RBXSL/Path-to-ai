@@ -1,43 +1,10 @@
-import { Client, GatewayIntentBits } from "discord.js";
-import fetch from "node-fetch";
+const express = require("express");
+const app = express();
 
-const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent
-  ]
+app.get("/", (req, res) => {
+  res.send("Bot is running!");
 });
 
-const MODEL = "claude-3-5-sonnet-2024";
-
-// Ask Claude API
-async function askClaude(prompt) {
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": process.env.ANTHROPIC_API_KEY,
-      "content-type": "application/json"
-    },
-    body: JSON.stringify({
-      model: MODEL,
-      max_tokens: 500,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
-
-  const data = await res.json();
-  return data.content?.[0]?.text || "(No response)";
-}
-
-client.on("messageCreate", async (msg) => {
-  if (msg.author.bot) return;
-
-  msg.channel.sendTyping();
-
-  const reply = await askClaude(msg.content);
-
-  msg.reply(reply);
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Render keepalive server running on port " + (process.env.PORT || 3000));
 });
-
-client.login(process.env.DISCORD_TOKEN);
